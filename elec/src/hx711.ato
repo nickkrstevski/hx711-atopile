@@ -1,0 +1,2 @@
+module Hx711:
+    signal gnd
