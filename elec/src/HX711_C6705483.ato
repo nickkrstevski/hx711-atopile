@@ -1,0 +1,23 @@
+component HX711_C6705483:
+    # component HX711_C6705483
+    footprint = "SOP-16_L10.0-W3.9-P1.27-LS6.0-BL"
+    lcsc_id = "C6705483"
+    mpn = "C6705483"
+    # pins
+    signal VSUP ~ pin 1
+    signal BASE ~ pin 2
+    signal AVDD ~ pin 3
+    signal VFB ~ pin 4
+    signal AGND ~ pin 5
+    signal VBG ~ pin 6
+    signal INNA ~ pin 7
+    signal INPA ~ pin 8
+    signal INNB ~ pin 9
+    signal INPB ~ pin 10
+    signal PD_SCK ~ pin 11
+    signal DOUT ~ pin 12
+    signal XO ~ pin 13
+    signal XI ~ pin 14
+    signal RATE ~ pin 15
+    signal DVDD ~ pin 16
+

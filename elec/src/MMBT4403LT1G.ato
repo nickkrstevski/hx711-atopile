@@ -1,0 +1,12 @@
+import Transistor_pnp from "generics/transistors.ato"
+
+component MMBT4403LT1G from Transistor_pnp:
+    # component MMBT4403LT1G
+    footprint = "SOT-23-3_L2.9-W1.3-P1.90-LS2.4-BR"
+    lcsc_id = "C78864"
+    mpn = "C78864"
+    # pins
+    base ~ pin 1
+    emitter ~ pin 2
+    collector ~ pin 3
+

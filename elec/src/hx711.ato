@@ -1,2 +1,124 @@
-module Hx711:
-    signal gnd
+import Power from "generics/interfaces.ato"
+import I2C from "generics/interfaces.ato"
+import Capacitor from "generics/capacitors.ato"
+import Resistor from "generics/resistors.ato"
+import DiffPair from "generics/interfaces.ato"
+import VDiv from "generics/vdivs.ato"
+import Inductor from "generics/inductors.ato"
+import Transistor_pnp from "generics/transistors.ato"
+import MMBT4403LT1G from "MMBT4403LT1G.ato"
+
+component _HX711_C6705483:
+    # component HX711_C6705483
+    footprint = "SOP-16_L10.0-W3.9-P1.27-LS6.0-BL"
+    lcsc_id = "C6705483"
+    mpn = "C6705483"
+    # pins
+    signal VSUP ~ pin 1
+    signal BASE ~ pin 2
+    signal AVDD ~ pin 3
+    signal VFB ~ pin 4
+    signal AGND ~ pin 5
+    signal VBG ~ pin 6
+    signal INNA ~ pin 7
+    signal INPA ~ pin 8
+    signal INNB ~ pin 9
+    signal INPB ~ pin 10
+    signal PD_SCK ~ pin 11
+    signal DOUT ~ pin 12
+    signal XO ~ pin 13
+    signal XI ~ pin 14
+    signal RATE ~ pin 15
+    signal DVDD ~ pin 16
+
+module DifferentialFilter:
+    input = new DiffPair
+    output = new DiffPair
+    # Differential input filter
+    filter_r1 = new Resistor
+    filter_r2 = new Resistor
+    filter_c = new Capacitor
+
+    # filter values
+    filter_r1.value = 100ohm +/- 5%
+    filter_r2.value = 100ohm +/- 5%
+    filter_c.value = 100nF +/- 20%
+
+    filter_r1.package = "0402"
+    filter_r2.package = "0402"
+    filter_c.package = "0402"
+
+    # math for filter values comming soon!
+
+    # connect sense input to filter and ic
+    input.n ~ filter_r1.1; filter_r2.1 ~ output.n
+    output.p ~ filter_r1.2; filter_r2.2 ~ input.p
+    output.p ~ filter_c.1; filter_c.2 ~ output.n
+
+
+module HX711:
+    ic = new _HX711_C6705483
+    power = new Power
+    force = new Power
+    i2c = new I2C
+    sense_a = new DiffPair
+    sense_b = new DiffPair
+
+    # Power
+    power.vcc ~ ic.DVDD
+    power.vcc ~ ic.VSUP
+    power.gnd ~ ic.AGND
+    power.gnd ~ ic.XI
+
+    # input caps
+    input_cap1 = new Capacitor
+    input_cap2 = new Capacitor
+    input_cap1.value = 100nF +/- 20%
+    input_cap2.value = 10uF +/- 20%
+    # Connect using caps power interface
+    input_cap1.power ~ power
+    input_cap2.power ~ power
+
+    # Force caps
+    cap1 = new Capacitor
+    cap2 = new Capacitor
+    cap1.value = 10uF +/- 20%
+    cap2.value = 100nF +/- 20%
+
+    # force inductor
+    inductor = new Inductor
+    inductor.inductance = 3.3uH +/- 30%
+
+    # force transistor
+    transistor = new Transistor_pnp
+    transistor.emitter ~ ic.AVDD
+    transistor.collector ~ power.vcc
+    transistor.base ~ ic.BASE
+    transistor -> MMBT4403LT1G
+
+    # Feedback divider
+    div = new VDiv
+    div.r_top.value = 20kohm +/- 5%
+    div.r_bottom.value = 8.2kohm +/- 5%
+    div.top ~ ic.AVDD
+    div.out ~ ic.VFB
+    div.bottom ~ power.gnd
+
+    # input filters
+    filter_a = new DifferentialFilter
+    filter_b = new DifferentialFilter
+
+    # Sense a
+    sense_a ~ filter_a.input
+    filter_a.output.p ~ ic.INPA
+    filter_a.output.n ~ ic.INNA
+
+    # Sense b
+    sense_b ~ filter_b.input
+    filter_b.output.p ~ ic.INPB
+    filter_b.output.n ~ ic.INNB
+
+    # VBG cap
+    vbg_cap = new Capacitor
+    vbg_cap.value = 100nF +/- 20%
+    ic.VBG ~ vbg_cap.1; vbg_cap.2 ~ power.gnd

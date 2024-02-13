@@ -1,0 +1,24 @@
+import Power from "modules/generics.ato"
+import Differential_Signal from "modules/generics.ato"
+import Resistor from "modules/generics.ato"
+
+module Wheatstone_vdiv:
+    signal input
+    signal output
+    signal gnd
+    power = new Power
+    power.vcc ~ input
+    power.gnd ~ gnd
+
+    rtop_1 = new Resistor
+    rtop_2 = new Resistor
+    rbt_1 = new Resistor
+    rbt_2 = new Resistor
+
+    rtop_1.p1 ~ input
+    rtop_1.p2 ~ rtop_2.p1
+    rtop_2.p2 ~ rbt_1.p1
+    rbt_1.p2 ~ rbt_2.p1
+    rbt_2.p2 ~ gnd
+
+    output ~ rtop_2.p2
