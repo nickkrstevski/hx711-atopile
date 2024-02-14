@@ -1,6 +1,6 @@
 ato-version: ^0.2.0
 builds:
   default:
-    entry: elec/src/hx711.ato:Hx711
+    entry: elec/src/hx711.ato:HX711
 dependencies:
 - generics
