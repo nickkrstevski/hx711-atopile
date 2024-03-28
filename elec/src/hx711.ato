@@ -3,7 +3,7 @@ import SPI from "generics/interfaces.ato"
 import Capacitor from "generics/capacitors.ato"
 import Resistor from "generics/resistors.ato"
 import DiffPair from "generics/interfaces.ato"
-import VDiv from "generics/vdivs.ato"
+import _VDiv from "generics/vdivs.ato"
 import Inductor from "generics/inductors.ato"
 import Transistor_pnp from "generics/transistors.ato"
 import MMBT4403LT1G from "MMBT4403LT1G.ato"
@@ -51,8 +51,8 @@ module DifferentialFilter:
     # math for filter values comming soon!
 
     # connect sense input to filter and ic
-    input.n ~ filter_r1.1; filter_r2.1 ~ output.n
-    output.p ~ filter_r1.2; filter_r2.2 ~ input.p
+    input.n ~ filter_r1.1; filter_r1.2 ~ output.n
+    input.p ~ filter_r2.1; filter_r2.2 ~ output.p
     output.p ~ filter_c.1; filter_c.2 ~ output.n
 
 
@@ -94,8 +94,9 @@ module HX711:
 
     # force inductor
     inductor = new Inductor
-    inductor.inductance = 3.3uH +/- 30%
-    inductor.1 ~ ic.AVDD; inductor.2 ~ force.vcc
+    inductor -> FHW0603UF3R3JST
+    inductor.value = 3.3uH +/- 30%
+    inductor.p1 ~ ic.AVDD; inductor.p2 ~ force.vcc
 
     # force transistor
     transistor = new Transistor_pnp
@@ -105,11 +106,11 @@ module HX711:
     transistor -> MMBT4403LT1G
 
     # Feedback divider
-    div = new VDiv
-    div.r_top.value = 20kohm +/- 5%
+    div = new _VDiv
+    div.r_top.value = 10kohm +/- 5%
     div.r_bottom.value = 8.2kohm +/- 5%
     div.top ~ ic.AVDD
-    div.out ~ ic.VFB
+    div.output.io ~ ic.VFB
     div.bottom ~ power.gnd
 
     # input filters
@@ -130,3 +131,13 @@ module HX711:
     vbg_cap = new Capacitor
     vbg_cap.value = 100nF +/- 20%
     ic.VBG ~ vbg_cap.1; vbg_cap.2 ~ power.gnd
+
+component FHW0603UF3R3JST:
+    # component FHW0603UF3R3JST
+    footprint = "IND-SMD_L1.2-W0.7"
+    lcsc_id = "C393983"
+    mpn = "C393983"
+    # pins
+    signal p1 ~ pin 1
+    signal p2 ~ pin 2
+
